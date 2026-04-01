@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    /* Prevent iOS font size adjustment */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    /* Extend background into iOS notch/home-indicator areas */
+    background-color: #0f172a;
+    min-height: 100dvh;
+  }
+
+  /* Smooth scrolling throughout */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .mb-nav {
+    /* Content bottom margin to clear the bottom nav */
+    margin-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
