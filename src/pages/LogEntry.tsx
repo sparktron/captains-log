@@ -3,23 +3,43 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
-import { ArrowLeft, Trash2 } from 'lucide-react'
+import { ArrowLeft, Trash2, CalendarDays, Anchor, MapPin, Navigation, Clock, Wind, Users, FileText, Ship } from 'lucide-react'
 import { useLogs, useBoats, useCrew } from '@/hooks/useLogs'
 import CrewPicker from '@/components/CrewPicker'
 import { LogEntryFormSchema, type LogEntryForm } from '@/types'
 import { getLog } from '@/db'
 
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <label className="block text-sm font-medium text-slate-300 mb-1">{children}</label>
+// ── Field wrappers ────────────────────────────────────────────────────────────
+
+function FieldGroup({ icon, label, children, error }: {
+  icon: React.ReactNode
+  label: string
+  children: React.ReactNode
+  error?: string
+}) {
+  return (
+    <div>
+      <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-500 mb-1.5">
+        <span className="text-sky-500/70">{icon}</span>
+        {label}
+      </label>
+      {children}
+      {error && <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">⚠ {error}</p>}
+    </div>
+  )
 }
 
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null
-  return <p className="mt-1 text-xs text-red-400">{message}</p>
-}
+// ── Section divider ───────────────────────────────────────────────────────────
 
-const inputCls =
-  'w-full rounded-lg bg-slate-700 border border-slate-600 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500'
+function FormSection({ title }: { title: string }) {
+  return (
+    <div className="flex items-center gap-3 pt-1">
+      <div className="divider flex-1" />
+      <span className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-600">{title}</span>
+      <div className="divider flex-1" />
+    </div>
+  )
+}
 
 export default function LogEntryPage() {
   const { id } = useParams<{ id: string }>()
@@ -46,7 +66,6 @@ export default function LogEntryPage() {
     },
   })
 
-  // Load existing entry for edit mode
   useEffect(() => {
     if (!id) return
     getLog(id).then((entry) => {
@@ -76,152 +95,137 @@ export default function LogEntryPage() {
 
   if (loading) {
     return (
-      <div className="px-4 pt-6 pb-safe mb-nav max-w-lg mx-auto space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-12 rounded-lg bg-slate-800 animate-pulse" />
+      <div className="px-4 pt-5 pb-safe mb-nav max-w-lg mx-auto space-y-3">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-12 rounded-xl animate-pulse" style={{ background: 'rgba(13,31,53,0.6)' }} />
         ))}
       </div>
     )
   }
 
   return (
-    <div className="px-4 pt-6 pb-safe mb-nav max-w-lg mx-auto">
-      <div className="flex items-center gap-3 mb-5">
+    <div className="px-4 pt-5 pb-safe mb-nav max-w-lg mx-auto animate-fade-in">
+
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-5 pt-1">
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="rounded-full p-1.5 text-slate-400 active:bg-slate-700"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors"
+          style={{ background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.12)' }}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={18} />
         </button>
-        <h1 className="text-xl font-bold">{isEdit ? 'Edit Trip' : 'New Trip'}</h1>
+        <h1 className="text-lg font-bold tracking-tight flex-1">
+          {isEdit ? 'Edit Trip' : 'New Trip'}
+        </h1>
         {isEdit && (
           <button
             type="button"
             onClick={handleDelete}
-            className="ml-auto rounded-full p-1.5 text-red-400 active:bg-slate-700"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-red-400 transition-colors"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.12)' }}
           >
-            <Trash2 size={20} />
+            <Trash2 size={16} />
           </button>
         )}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-        {/* Date */}
-        <div>
-          <FieldLabel>Date</FieldLabel>
-          <input type="date" className={inputCls} {...register('date')} />
-          <FieldError message={errors.date?.message} />
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
 
-        {/* Boat */}
-        <div>
-          <FieldLabel>Vessel</FieldLabel>
-          <select className={inputCls} {...register('boatId')}>
-            <option value="">Select a boat…</option>
+        {/* ── When & Where ── */}
+        <FormSection title="Voyage Details" />
+
+        <FieldGroup icon={<CalendarDays size={12} />} label="Date" error={errors.date?.message}>
+          <input type="date" className="input" {...register('date')} />
+        </FieldGroup>
+
+        <FieldGroup icon={<Ship size={12} />} label="Vessel" error={errors.boatId?.message}>
+          <select className="input" {...register('boatId')}>
+            <option value="">Select a vessel…</option>
             {boats.map((b) => (
               <option key={b.id} value={b.id}>
-                {b.name} ({b.type})
+                {b.name} — {b.type}, {b.lengthFt}ft
               </option>
             ))}
           </select>
-          <FieldError message={errors.boatId?.message} />
           {boats.length === 0 && (
-            <p className="mt-1 text-xs text-slate-500">
-              Add boats in the Boats tab first.
-            </p>
+            <p className="mt-1.5 text-xs text-slate-600 italic">Add vessels in the Boats tab first.</p>
           )}
-        </div>
+        </FieldGroup>
 
         {/* Departure / Arrival */}
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <FieldLabel>Departed</FieldLabel>
-            <input
-              className={inputCls}
-              placeholder="Marina, dock, anchorage…"
-              {...register('departureLocation')}
-            />
-            <FieldError message={errors.departureLocation?.message} />
-          </div>
-          <div>
-            <FieldLabel>Arrived</FieldLabel>
-            <input
-              className={inputCls}
-              placeholder="Destination"
-              {...register('arrivalLocation')}
-            />
-            <FieldError message={errors.arrivalLocation?.message} />
-          </div>
+          <FieldGroup icon={<Anchor size={12} />} label="Departed" error={errors.departureLocation?.message}>
+            <input className="input" placeholder="Marina, dock, anchorage…" {...register('departureLocation')} />
+          </FieldGroup>
+          <FieldGroup icon={<MapPin size={12} />} label="Arrived" error={errors.arrivalLocation?.message}>
+            <input className="input" placeholder="Destination" {...register('arrivalLocation')} />
+          </FieldGroup>
         </div>
 
-        {/* Route */}
-        <div>
-          <FieldLabel>Route sailed</FieldLabel>
+        <FieldGroup icon={<Navigation size={12} />} label="Route sailed" error={errors.route?.message}>
           <textarea
-            className={`${inputCls} min-h-[5rem] resize-none`}
+            className="input min-h-[5rem] resize-none"
             placeholder="Describe the course taken…"
             {...register('route')}
           />
-          <FieldError message={errors.route?.message} />
-        </div>
+        </FieldGroup>
 
-        {/* Hours underway */}
-        <div>
-          <FieldLabel>Hours underway</FieldLabel>
+        {/* ── Time & Conditions ── */}
+        <FormSection title="Time & Conditions" />
+
+        <FieldGroup icon={<Clock size={12} />} label="Hours underway" error={errors.hoursUnderway?.message}>
           <input
             type="number"
             step="0.25"
             min="0.25"
             max="24"
-            className={inputCls}
+            className="input"
             placeholder="e.g. 4.5"
             {...register('hoursUnderway', { valueAsNumber: true })}
           />
-          <FieldError message={errors.hoursUnderway?.message} />
-        </div>
+        </FieldGroup>
 
-        {/* Conditions */}
-        <div>
-          <FieldLabel>Conditions (optional)</FieldLabel>
+        <FieldGroup icon={<Wind size={12} />} label="Conditions (optional)">
           <input
-            className={inputCls}
-            placeholder="Sea state, visibility, wind…"
+            className="input"
+            placeholder="Sea state, visibility, wind speed & direction…"
             {...register('conditions')}
           />
-        </div>
+        </FieldGroup>
 
-        {/* Crew */}
-        <div>
-          <FieldLabel>Crew aboard</FieldLabel>
-          <Controller
-            control={control}
-            name="crewIds"
-            render={({ field }) => (
-              <CrewPicker
-                crew={crew}
-                selected={field.value ?? []}
-                onChange={field.onChange}
-              />
-            )}
-          />
-        </div>
+        {/* ── Crew ── */}
+        <FormSection title="Crew Aboard" />
 
-        {/* Notes */}
-        <div>
-          <FieldLabel>Notes (optional)</FieldLabel>
+        <FieldGroup icon={<Users size={12} />} label="Crew members">
+          <div className="card-inset p-2">
+            <Controller
+              control={control}
+              name="crewIds"
+              render={({ field }) => (
+                <CrewPicker
+                  crew={crew}
+                  selected={field.value ?? []}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+          </div>
+        </FieldGroup>
+
+        {/* ── Notes ── */}
+        <FormSection title="Notes" />
+
+        <FieldGroup icon={<FileText size={12} />} label="Additional remarks">
           <textarea
-            className={`${inputCls} min-h-[4rem] resize-none`}
+            className="input min-h-[4rem] resize-none"
             placeholder="Any additional remarks…"
             {...register('notes')}
           />
-        </div>
+        </FieldGroup>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded-xl bg-sky-500 py-3 font-semibold text-white active:bg-sky-600 disabled:opacity-50"
-        >
+        <button type="submit" disabled={isSubmitting} className="btn-primary mt-2">
           {isSubmitting ? 'Saving…' : isEdit ? 'Save Changes' : 'Log Trip'}
         </button>
       </form>

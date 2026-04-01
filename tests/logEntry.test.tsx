@@ -86,7 +86,7 @@ describe('LogEntry form', () => {
 
   it('shows boat options from useBoats', () => {
     renderLogEntry()
-    expect(screen.getByText('Sea Witch (sailboat)')).toBeInTheDocument()
+    expect(screen.getByText('Sea Witch — sailboat, 38ft')).toBeInTheDocument()
   })
 
   it('shows crew members in the picker', () => {
