@@ -11,6 +11,7 @@ import {
   getAllCrew,
   putCrewMember,
   deleteCrewMember,
+  getCrewHours,
 } from '@/db'
 import type { LogEntry, LogEntryForm, Boat, BoatForm, CrewMember, CrewMemberForm } from '@/types'
 
@@ -109,10 +110,13 @@ export function useBoats() {
 
 export function useCrew() {
   const [crew, setCrew] = useState<CrewMember[]>([])
+  const [crewHours, setCrewHours] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
-    setCrew(await getAllCrew())
+    const [members, hours] = await Promise.all([getAllCrew(), getCrewHours()])
+    setCrew(members)
+    setCrewHours(hours)
     setLoading(false)
   }, [])
 
@@ -146,5 +150,5 @@ export function useCrew() {
     [refresh],
   )
 
-  return { crew, loading, addCrewMember, updateCrewMember, removeCrewMember, refresh }
+  return { crew, crewHours, loading, addCrewMember, updateCrewMember, removeCrewMember, refresh }
 }

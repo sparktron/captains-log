@@ -113,6 +113,23 @@ export async function deleteCrewMember(id: string): Promise<void> {
   await db.delete('crew', id)
 }
 
+// ── Aggregations ─────────────────────────────────────────────────────────────
+
+/**
+ * Returns a map of crewMember.id → total hours across all log entries
+ * in which that crew member appears.
+ */
+export async function getCrewHours(): Promise<Record<string, number>> {
+  const logs = await getAllLogs()
+  const hours: Record<string, number> = {}
+  for (const log of logs) {
+    for (const crewId of log.crewIds) {
+      hours[crewId] = (hours[crewId] ?? 0) + log.hoursUnderway
+    }
+  }
+  return hours
+}
+
 // ── Reset (for testing) ───────────────────────────────────────────────────────
 
 export function resetDb(): void {
