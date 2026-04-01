@@ -135,3 +135,15 @@ export async function getCrewHours(): Promise<Record<string, number>> {
 export function resetDb(): void {
   dbPromise = null
 }
+
+/** Clears all object stores — use in tests that need a clean slate. */
+export async function clearDb(): Promise<void> {
+  const db = await getDb()
+  const tx = db.transaction(['logs', 'boats', 'crew'], 'readwrite')
+  await Promise.all([
+    tx.objectStore('logs').clear(),
+    tx.objectStore('boats').clear(),
+    tx.objectStore('crew').clear(),
+    tx.done,
+  ])
+}

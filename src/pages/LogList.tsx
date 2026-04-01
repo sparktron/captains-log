@@ -1,12 +1,19 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { PlusCircle, BookOpen } from 'lucide-react'
+import { PlusCircle, BookOpen, Upload } from 'lucide-react'
 import { useLogs, useBoats } from '@/hooks/useLogs'
 import LogCard from '@/components/LogCard'
+import ImportSheet from '@/components/ImportSheet'
 
 export default function LogList() {
-  const { logs, totalHours, loading } = useLogs()
-  const { boats } = useBoats()
+  const { logs, totalHours, loading, refresh } = useLogs()
+  const { boats, refresh: refreshBoats } = useBoats()
   const boatMap = Object.fromEntries(boats.map((b) => [b.id, b]))
+  const [showImport, setShowImport] = useState(false)
+
+  const handleImported = async () => {
+    await Promise.all([refresh(), refreshBoats()])
+  }
 
   return (
     <div className="px-4 pt-5 pb-safe mb-nav max-w-lg mx-auto animate-fade-in">
@@ -27,10 +34,23 @@ export default function LogList() {
             )}
           </div>
         </div>
-        <Link to="/log/new" className="btn-pill">
-          <PlusCircle size={14} />
-          New
-        </Link>
+
+        <div className="flex items-center gap-2">
+          {/* Import button */}
+          <button
+            onClick={() => setShowImport(true)}
+            title="Import from JSON"
+            className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 transition-colors"
+            style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)' }}
+          >
+            <Upload size={15} className="text-violet-400" />
+          </button>
+
+          <Link to="/log/new" className="btn-pill">
+            <PlusCircle size={14} />
+            New
+          </Link>
+        </div>
       </div>
 
       {loading ? (
@@ -49,14 +69,23 @@ export default function LogList() {
           </div>
           <p className="text-slate-300 font-semibold mb-1">No trips logged yet</p>
           <p className="text-xs text-slate-600 mb-5">Every voyage starts with a single entry</p>
-          <Link
-            to="/log/new"
-            className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-white"
-            style={{ background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', boxShadow: '0 2px 10px rgba(14,165,233,0.3)' }}
-          >
-            <PlusCircle size={15} />
-            Log your first trip
-          </Link>
+          <div className="flex flex-col gap-2 items-center">
+            <Link
+              to="/log/new"
+              className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-white"
+              style={{ background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', boxShadow: '0 2px 10px rgba(14,165,233,0.3)' }}
+            >
+              <PlusCircle size={15} />
+              Log your first trip
+            </Link>
+            <button
+              onClick={() => setShowImport(true)}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-violet-400"
+            >
+              <Upload size={14} />
+              or import from JSON
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-2 animate-slide-up">
@@ -64,6 +93,13 @@ export default function LogList() {
             <LogCard key={entry.id} entry={entry} boat={boatMap[entry.boatId]} />
           ))}
         </div>
+      )}
+
+      {showImport && (
+        <ImportSheet
+          onClose={() => setShowImport(false)}
+          onImported={handleImported}
+        />
       )}
     </div>
   )

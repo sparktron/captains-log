@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "date": "2026-03-01",
+      "vessel": {
+        "name": "Sea Witch",
+        "type": "sailboat",
+        "lengthFt": 38,
+        "documentationNumber": "USC-123456"
+      },
+      "departureLocation": "Newport, RI",
+      "arrivalLocation": "Block Island, RI",
+      "route": "East Passage south, rounded Point Judith, northeast into Great Salt Pond",
+      "hoursUnderway": 4.5,
+      "conditions": "10-15 kt SW, 2-3 ft chop, visibility 10+ nm",
+      "crew": [
+        { "name": "Jane Doe",  "role": "mate",    "licenseNumber": "MMC-001234" },
+        { "name": "Bob Smith", "role": "crew" }
+      ],
+      "notes": "Dolphins at the harbor mouth. Anchored in the Pond overnight."
+    },
+    {
+      "date": "2026-03-08",
+      "vessel": {
+        "name": "Sea Witch",
+        "type": "sailboat",
+        "lengthFt": 38,
+        "documentationNumber": "USC-123456"
+      },
+      "departureLocation": "Block Island, RI",
+      "arrivalLocation": "Stonington, CT",
+      "route": "Great Salt Pond to SW Point, west along the Sound to Stonington Harbor",
+      "hoursUnderway": 6.0,
+      "conditions": "15-20 kt NW, 3 ft seas, overcast",
+      "crew": [
+        { "name": "Jane Doe", "role": "mate" }
+      ],
+      "notes": "Brisk beam reach most of the way. Fuel and pump-out at Dodson's."
+    },
+    {
+      "date": "2026-03-15",
+      "vessel": {
+        "name": "Blue Horizon",
+        "type": "powerboat",
+        "lengthFt": 28
+      },
+      "departureLocation": "Westport, CT",
+      "arrivalLocation": "Northport, NY",
+      "route": "Saugatuck River to Long Island Sound, southwest to Northport Bay",
+      "hoursUnderway": 2.25,
+      "conditions": "Calm, 1 ft swell, sunny",
+      "crew": [
+        { "name": "Alice Johnson", "role": "observer" }
+      ],
+      "notes": ""
+    },
+    {
+      "date": "2026-03-22",
+      "vessel": {
+        "name": "Blue Horizon",
+        "type": "powerboat",
+        "lengthFt": 28
+      },
+      "departureLocation": "Northport, NY",
+      "arrivalLocation": "Port Jefferson, NY",
+      "route": "Northport Bay east across the Sound to Port Jeff Harbor",
+      "hoursUnderway": 1.75,
+      "conditions": "Light fog early, cleared by 0900. Calm.",
+      "crew": [],
+      "notes": "Solo run. Fuel at Port Jeff Marina."
+    }
+  ]
+}
